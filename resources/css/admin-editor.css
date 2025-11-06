@@ -1,0 +1,240 @@
+/* Summernote Editor Styles for Admin Panel */
+
+/* Base editor styles */
+.note-editor {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.note-editor.note-frame {
+    background: white;
+}
+
+.note-editor.note-frame .note-editing-area {
+    background: white;
+}
+
+.note-editor.note-frame .note-editable {
+    background: white;
+    color: #1f2937;
+    min-height: 400px;
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 15px;
+}
+
+.note-editor.note-frame .note-toolbar {
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 8px;
+}
+
+.note-editor.note-frame .note-btn {
+    color: #374151;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    padding: 4px 8px;
+    margin: 2px;
+}
+
+.note-editor.note-frame .note-btn:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+}
+
+.note-editor.note-frame .note-btn-group .note-btn.active {
+    background: #f59e0b;
+    color: white;
+    border-color: #d97706;
+}
+
+.note-editor.note-frame .note-dropdown-menu {
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.note-editor.note-frame .note-dropdown-menu > li > a {
+    color: #374151;
+    padding: 8px 12px;
+}
+
+.note-editor.note-frame .note-dropdown-menu > li > a:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Dark mode styles */
+.dark .note-editor.note-frame {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+.dark .note-editor.note-frame .note-editing-area {
+    background: #111827;
+}
+
+.dark .note-editor.note-frame .note-editable {
+    background: #111827;
+    color: #f9fafb;
+}
+
+.dark .note-editor.note-frame .note-toolbar {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+.dark .note-editor.note-frame .note-btn {
+    color: #f9fafb;
+    background: transparent;
+}
+
+.dark .note-editor.note-frame .note-btn:hover {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+.dark .note-editor.note-frame .note-btn-group .note-btn.active {
+    background: #f59e0b;
+    color: white;
+}
+
+.dark .note-editor.note-frame .note-dropdown-menu {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+.dark .note-editor.note-frame .note-dropdown-menu > li > a {
+    color: #f9fafb;
+}
+
+.dark .note-editor.note-frame .note-dropdown-menu > li > a:hover {
+    background: #374151;
+    color: #f9fafb;
+}
+
+/* Code view styling */
+.note-editor.note-frame .note-codeview {
+    background: #1f2937;
+    color: #f9fafb;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.dark .note-editor.note-frame .note-codeview {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+/* Modal and popup styling */
+.note-editor.note-frame .modal {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.note-editor.note-frame .modal-dialog {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.dark .note-editor.note-frame .modal-dialog {
+    background: #1f2937;
+    border: 1px solid #374151;
+}
+
+.note-editor.note-frame .modal-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1rem;
+}
+
+.dark .note-editor.note-frame .modal-header {
+    border-color: #374151;
+}
+
+.note-editor.note-frame .modal-title {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.dark .note-editor.note-frame .modal-title {
+    color: #f9fafb;
+}
+
+.note-editor.note-frame .modal-body {
+    padding: 1rem;
+    color: #374151;
+}
+
+.dark .note-editor.note-frame .modal-body {
+    color: #f9fafb;
+}
+
+.note-editor.note-frame .modal-footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 1rem;
+}
+
+.dark .note-editor.note-frame .modal-footer {
+    border-color: #374151;
+}
+
+/* Input styling in modals */
+.note-editor.note-frame .modal-body input,
+.note-editor.note-frame .modal-body textarea {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #1f2937;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.dark .note-editor.note-frame .modal-body input,
+.dark .note-editor.note-frame .modal-body textarea {
+    background: #111827;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
+/* Button styling in modals */
+.note-editor.note-frame .modal-footer .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.note-editor.note-frame .modal-footer .btn-primary {
+    background: #f59e0b;
+    border-color: #d97706;
+    color: white;
+}
+
+.note-editor.note-frame .modal-footer .btn-primary:hover {
+    background: #d97706;
+}
+
+/* Fullscreen mode */
+.note-editor.note-frame.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    border-radius: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .note-editor.note-frame .note-toolbar {
+        padding: 4px;
+    }
+    
+    .note-editor.note-frame .note-btn {
+        padding: 3px 6px;
+        font-size: 12px;
+    }
+}
+
