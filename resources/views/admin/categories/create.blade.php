@@ -31,7 +31,11 @@
                 @error('image_url')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 <div id="image-preview" class="mt-2">
                     @if(old('image_url'))
-                        <img src="{{ old('image_url') }}" alt="Preview" class="h-20 w-20 rounded border object-cover" onerror="this.style.display='none'">
+                        @php
+                            $previewUrl = old('image_url');
+                            $displayUrl = str_starts_with($previewUrl, 'http') ? $previewUrl : asset('public'.$previewUrl);
+                        @endphp
+                        <img src="{{ $displayUrl }}" alt="Preview" class="h-20 w-20 rounded border object-cover" onerror="this.style.display='none'">
                     @endif
                 </div>
             </div>

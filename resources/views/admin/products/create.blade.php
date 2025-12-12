@@ -12,7 +12,7 @@
     <h1 class="mb-6 text-3xl font-extrabold text-secondary">Create New Product</h1>
 
     <div class="max-w-3xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <form action="{{ route('admin.products.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -71,6 +71,17 @@
                     @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     <p class="mt-1 text-xs text-gray-500">Use the rich text editor. Click Code View (< / >) to add HTML directly.</p>
                 </div>
+
+                <div class="sm:col-span-2">
+                    <label for="images" class="block text-sm font-medium">Product Images <small class="text-gray-500">(optional, multiple allowed)</small></label>
+                    <input type="file" id="images" name="images[]" multiple accept="image/*" class="mt-1 block w-full rounded-md border border-gray-300 bg-light px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700" onchange="previewImages(this)">
+                    @error('images')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                    @error('images.*')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                    <p class="mt-1 text-xs text-gray-500">You can select multiple images. The first image will be set as primary.</p>
+                    <div id="image-preview" class="mt-3 flex flex-wrap gap-3">
+                        <!-- Preview images will appear here -->
+                    </div>
+                </div>
             </div>
 
             <fieldset class="space-y-3 border-t pt-4 dark:border-gray-700">
@@ -106,6 +117,30 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
     <script>
         {!! file_get_contents(resource_path('js/admin-editor.js')) !!}
+    </script>
+    <script>
+        function previewImages(input) {
+            const preview = document.getElementById('image-preview');
+            preview.innerHTML = '';
+            
+            if (input.files && input.files.length > 0) {
+                Array.from(input.files).forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const div = document.createElement('div');
+                            div.className = 'relative';
+                            div.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview ${index + 1}" class="h-24 w-24 rounded border object-cover">
+                                <span class="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">${index + 1}</span>
+                            `;
+                            preview.appendChild(div);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        }
     </script>
 @endpush
 

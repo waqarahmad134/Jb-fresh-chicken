@@ -32,7 +32,7 @@
                         data-cart-item-id="{{ $item->id }}"
                     >
                         <img 
-                            src="{{ $item->product->image_url ?? 'https://picsum.photos/id/10/100/100' }}" 
+                            src="{{ $item->product->image_url ? (str_starts_with($item->product->image_url, 'http') ? $item->product->image_url : asset('public'.$item->product->image_url)) : 'https://picsum.photos/id/10/100/100' }}" 
                             alt="{{ $item->product->name }}" 
                             class="h-20 w-20 flex-shrink-0 rounded-md object-cover sm:h-24 sm:w-24"
                         >

@@ -22,8 +22,12 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+    <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
+    <link rel="preload" as="style" href="{{ asset('public/build/assets/app-Ch1-MkTq.css') }}" />
+    <link rel="modulepreload" as="script" href="{{ asset('public/build/assets/app-CU1NkAvt.js') }}" />
+    <link rel="stylesheet" href="{{ asset('public/build/assets/app-Ch1-MkTq.css') }}" />
+    <script type="module" src="{{ asset('public/build/assets/app-CU1NkAvt.js') }}"></script>
+
     @stack('head')
 </head>
 <body class="antialiased font-sans bg-gray-50 text-dark dark:bg-gray-900 dark:text-light">

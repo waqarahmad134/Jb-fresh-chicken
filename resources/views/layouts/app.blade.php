@@ -34,7 +34,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
+    <link rel="preload" as="style" href="{{ asset('public/build/assets/app-Ch1-MkTq.css') }}" />
+    <link rel="modulepreload" as="script" href="{{ asset('public/build/assets/app-CU1NkAvt.js') }}" />
+    <link rel="stylesheet" href="{{ asset('public/build/assets/app-Ch1-MkTq.css') }}" />
+    <script type="module" src="{{ asset('public/build/assets/app-CU1NkAvt.js') }}"></script>
 
     @stack('head')
 </head>

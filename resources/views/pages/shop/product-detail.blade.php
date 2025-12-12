@@ -22,7 +22,7 @@
             <div class="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                 <img 
                     id="product-main-image"
-                    src="{{ $product->image_url }}" 
+                    src="{{ str_starts_with($product->image_url, 'http') ? $product->image_url : asset('public'.$product->image_url) }}" 
                     alt="{{ $product->name }}" 
                     class="h-96 w-full object-cover"
                 >
@@ -30,12 +30,15 @@
             @if ($product->image_urls && count($product->image_urls) > 1)
                 <div class="mt-4 grid grid-cols-4 gap-2" id="product-thumbnails">
                     @foreach (array_slice($product->image_urls, 0, 8) as $index => $imageUrl)
-                        @php $isActive = $imageUrl === $product->image_url; @endphp
+                        @php 
+                            $isActive = $imageUrl === $product->image_url;
+                            $displayUrl = str_starts_with($imageUrl, 'http') ? $imageUrl : asset('public'.$imageUrl);
+                        @endphp
                         <img 
-                            src="{{ $imageUrl }}" 
+                            src="{{ $displayUrl }}" 
                             alt="{{ $product->name }} thumbnail {{ $index + 1 }}" 
                             data-thumb
-                            data-src="{{ $imageUrl }}"
+                            data-src="{{ $displayUrl }}"
                             class="h-20 w-full cursor-pointer rounded-md border object-cover transition {{ $isActive ? 'border-primary ring-2 ring-primary' : 'border-gray-200 dark:border-gray-700 hover:border-primary' }}"
                         >
                     @endforeach

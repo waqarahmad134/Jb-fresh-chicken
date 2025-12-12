@@ -14,10 +14,9 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            'Nuggets & Poppers',
-            'Strips & Sandwiches',
-            'Family Meals',
-            'Wings',
+            'Chicken',
+            'Beef',
+            'Mutton',
         ];
 
         foreach ($categories as $index => $categoryName) {

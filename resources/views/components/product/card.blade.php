@@ -23,7 +23,7 @@
 @if ($cardStyle === 'style2')
     <article class="flex overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
         <a href="{{ $productUrl }}" class="relative block w-1/3 overflow-hidden">
-            <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy">
+            <img src="{{ str_starts_with($imageUrl, 'http') ? $imageUrl : asset('public'.$imageUrl) }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy">
             @if ($quickViewEnabled)
                 <button 
                     type="button"
@@ -88,7 +88,7 @@
 @elseif ($cardStyle === 'style3')
     <article class="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800">
         <a href="{{ $productUrl }}" class="block">
-            <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="h-72 w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+            <img src="{{ str_starts_with($imageUrl, 'http') ? $imageUrl : asset('public'.$imageUrl) }}" alt="{{ $product->name }}" class="h-72 w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
             @if ($quickViewEnabled)
                 <button 
                     type="button"
@@ -145,7 +145,7 @@
 @else
     <article class="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
         <a href="{{ $productUrl }}" class="relative block overflow-hidden">
-            <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy">
+            <img src="{{ str_starts_with($imageUrl, 'http') ? $imageUrl : asset('public'.$imageUrl) }}" alt="{{ $product->name }}" class="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy">
             @if ($quickViewEnabled)
                 <button 
                     type="button"
@@ -182,7 +182,7 @@
         <div class="flex flex-1 flex-col p-5">
             <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $product->category->name ?? 'Category' }}</span>
             <a href="{{ $productUrl }}" class="mt-2 flex-1 text-lg font-semibold text-dark transition-colors hover:text-primary dark:text-white">
-                {{ $product->name }} 1
+                {{ $product->name }}
             </a>
             <a href="{{ $productUrl }}" class="mt-1 text-xs text-primary hover:underline">View Details →</a>
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">{{ \Illuminate\Support\Str::limit($product->description, 110) }}</p>

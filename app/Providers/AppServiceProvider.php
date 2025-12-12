@@ -26,7 +26,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Only load database-dependent data if not in console and tables exist
         if (! $this->app->runningInConsole() && $this->tablesExist()) {
             try {
                 $siteSettings = Cache::remember('site.settings', 3600, function () {

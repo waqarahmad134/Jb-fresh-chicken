@@ -30,7 +30,7 @@
                     @foreach ($order->items as $item)
                         <div class="flex items-start gap-4 border-b pb-4 last:border-b-0 dark:border-gray-700">
                             @if ($item->product_image)
-                                <img src="{{ $item->product_image }}" alt="{{ $item->product_name }}" class="h-16 w-16 rounded object-cover">
+                                <img src="{{ str_starts_with($item->product_image, 'http') ? $item->product_image : asset('public'.$item->product_image) }}" alt="{{ $item->product_name }}" class="h-16 w-16 rounded object-cover">
                             @else
                                 <div class="flex h-16 w-16 items-center justify-center rounded bg-gray-100 dark:bg-gray-700">
                                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

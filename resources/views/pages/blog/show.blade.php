@@ -13,7 +13,7 @@
             <div class="mt-6 flex items-center justify-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                 <div class="flex items-center">
                     <img 
-                        src="{{ $post->author_image_url ?? 'https://picsum.photos/id/64/50/50' }}" 
+                        src="{{ $post->author_image_url ? (str_starts_with($post->author_image_url, 'http') ? $post->author_image_url : asset('public'.$post->author_image_url)) : 'https://picsum.photos/id/64/50/50' }}" 
                         alt="{{ $post->author_name }}" 
                         class="mr-2 h-10 w-10 rounded-full"
                     >
@@ -25,7 +25,7 @@
         </header>
 
         <img 
-            src="{{ $post->image_url }}" 
+            src="{{ str_starts_with($post->image_url, 'http') ? $post->image_url : asset('public'.$post->image_url) }}" 
             alt="{{ $post->title }}" 
             class="mb-8 h-auto max-h-96 w-full rounded-lg object-cover"
         >

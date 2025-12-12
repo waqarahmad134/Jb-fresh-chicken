@@ -235,7 +235,7 @@
                                     class="flex-shrink-0"
                                 >
                                     <img 
-                                        src="{{ $product->image_url ?? 'https://picsum.photos/id/10/200/200' }}" 
+                                        src="{{ $product->image_url ? (str_starts_with($product->image_url, 'http') ? $product->image_url : asset('public'.$product->image_url)) : 'https://picsum.photos/id/10/200/200' }}" 
                                         alt="{{ $product->name }}" 
                                         class="h-32 w-full rounded-lg object-cover transition-transform hover:scale-105 sm:h-40 sm:w-40"
                                         loading="lazy"

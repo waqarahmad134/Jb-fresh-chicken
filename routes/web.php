@@ -13,6 +13,24 @@ Route::get('/test-route', function () {
     return 'ROUTES ARE WORKING!';
 });
 
+// Development route: Run migrate:fresh and db:seed
+// WARNING: Only use in development! This will wipe your database.
+Route::get('/dev/reset-db', function () {
+    if (!app()->environment('local')) {
+        abort(403, 'This route is only available in local environment');
+    }
+    
+    \Illuminate\Support\Facades\Artisan::call('migrate:fresh');
+    \Illuminate\Support\Facades\Artisan::call('db:seed');
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Database has been reset and seeded successfully',
+        'migrate' => 'migrate:fresh completed',
+        'seed' => 'db:seed completed'
+    ]);
+})->name('dev.reset-db');
+
 // Home
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/meal-ideas', [HomeController::class, 'generateMealIdea'])->name('meal-ideas.generate');

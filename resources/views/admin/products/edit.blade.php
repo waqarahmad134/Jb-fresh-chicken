@@ -12,7 +12,7 @@
     <h1 class="mb-6 text-3xl font-extrabold text-secondary">Edit Product: {{ $product->name }}</h1>
 
     <div class="max-w-3xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <form action="{{ route('admin.products.update', $product) }}" method="POST" class="space-y-6">
+        <form action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
 
@@ -56,7 +56,7 @@
 
                 <div>
                     <label for="sale_price" class="block text-sm font-medium">Sale Price (PKR)</label>
-                    <input type="number" id="sale_price" name="sale_price" value="{{ old('sale_price', $product->sale_price) }}" step="0.01" min="0" class="mt-1 block w-full rounded-md border border-gray-300 bg-light px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700">
+                    <input type="number" id="sale_price" name="sale_price" value="{{ old('sale_price', $product->compare_at_price) }}" step="0.01" min="0" class="mt-1 block w-full rounded-md border border-gray-300 bg-light px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700">
                     @error('sale_price')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -71,6 +71,38 @@
                     <textarea id="description" name="description" rows="4" class="mt-1 block w-full rounded-md border border-gray-300 bg-light px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700">{{ old('description', $product->description) }}</textarea>
                     @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     <p class="mt-1 text-xs text-gray-500">Use the rich text editor. Click Code View (< / >) to add HTML directly.</p>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium mb-2">Existing Product Images</label>
+                    @if($product->images && $product->images->count() > 0)
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                            @foreach($product->images as $image)
+                                <div class="relative group">
+                                    <img src="{{ str_starts_with($image->image_url, 'http') ? $image->image_url : asset('public'.$image->image_url) }}" alt="{{ $image->alt_text ?? $product->name }}" class="w-full h-32 object-cover rounded border border-gray-300">
+                                    @if($image->is_primary)
+                                        <span class="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">Primary</span>
+                                    @endif
+                                    <label class="absolute top-1 right-1 cursor-pointer">
+                                        <input type="checkbox" name="delete_images[]" value="{{ $image->id }}" class="hidden delete-image-checkbox">
+                                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Delete</span>
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <p class="text-xs text-gray-500 mb-3">Check "Delete" on images you want to remove.</p>
+                    @else
+                        <p class="text-sm text-gray-500 mb-3">No images uploaded yet.</p>
+                    @endif
+
+                    <label for="images" class="block text-sm font-medium">Add New Product Images <small class="text-gray-500">(optional, multiple allowed)</small></label>
+                    <input type="file" id="images" name="images[]" multiple accept="image/*" class="mt-1 block w-full rounded-md border border-gray-300 bg-light px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700" onchange="previewImages(this)">
+                    @error('images')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                    @error('images.*')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                    <p class="mt-1 text-xs text-gray-500">You can select multiple images. They will be added to existing images.</p>
+                    <div id="image-preview" class="mt-3 flex flex-wrap gap-3">
+                        <!-- Preview images will appear here -->
+                    </div>
                 </div>
             </div>
 
@@ -107,6 +139,47 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
     <script>
         {!! file_get_contents(resource_path('js/admin-editor.js')) !!}
+    </script>
+    <script>
+        function previewImages(input) {
+            const preview = document.getElementById('image-preview');
+            preview.innerHTML = '';
+            
+            if (input.files && input.files.length > 0) {
+                Array.from(input.files).forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const div = document.createElement('div');
+                            div.className = 'relative';
+                            div.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview ${index + 1}" class="h-24 w-24 rounded border object-cover">
+                                <span class="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">${index + 1}</span>
+                            `;
+                            preview.appendChild(div);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        }
+
+        // Handle delete image checkboxes
+        document.querySelectorAll('.delete-image-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const label = this.closest('label');
+                const span = label.querySelector('span');
+                if (this.checked) {
+                    span.classList.remove('opacity-0');
+                    span.classList.add('opacity-100', 'bg-red-600');
+                    span.textContent = 'Will Delete';
+                } else {
+                    span.classList.remove('opacity-100', 'bg-red-600');
+                    span.classList.add('opacity-0');
+                    span.textContent = 'Delete';
+                }
+            });
+        });
     </script>
 @endpush
 

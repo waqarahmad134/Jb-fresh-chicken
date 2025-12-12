@@ -12,7 +12,7 @@
 
 <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
     <a href="{{ $postUrl }}" class="block overflow-hidden">
-        <img src="{{ $imageUrl }}" alt="{{ $post->title }}" class="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+        <img src="{{ str_starts_with($imageUrl, 'http') ? $imageUrl : asset('public'.$imageUrl) }}" alt="{{ $post->title }}" class="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
     </a>
     <div class="flex flex-1 flex-col p-6">
         <span class="text-xs font-semibold uppercase tracking-widest text-primary">{{ $categoryName }}</span>

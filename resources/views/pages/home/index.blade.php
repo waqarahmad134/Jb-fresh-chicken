@@ -79,7 +79,11 @@
                 <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
                     @forelse ($featuredCategories as $category)
                         <a href="{{ url('/shop?category=' . $category['slug']) }}" class="group relative flex h-64 items-end overflow-hidden rounded-2xl shadow-lg">
-                            <img src="{{ $category['image'] ?? $placeholderImage }}" alt="{{ $category['name'] }}" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                            @php
+                                $categoryImage = $category['image'] ?? $placeholderImage;
+                                $categoryImageUrl = str_starts_with($categoryImage, 'http') ? $categoryImage : asset('public'.$categoryImage);
+                            @endphp
+                            <img src="{{ $categoryImageUrl }}" alt="{{ $category['name'] }}" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                             <div class="relative z-10 p-6 text-white">
                                 <h4 class="text-2xl font-bold">{{ $category['name'] }}</h4>
@@ -155,7 +159,7 @@
                                 </a>
                             </div>
                             <div class="order-1 md:order-2">
-                                <img src="{{ $dealProduct->image_url ?? $placeholderImage }}" alt="{{ $dealProduct->name }}" class="h-64 w-full object-cover md:h-full" loading="lazy">
+                                <img src="{{ $dealProduct->image_url ? (str_starts_with($dealProduct->image_url, 'http') ? $dealProduct->image_url : asset('public'.$dealProduct->image_url)) : $placeholderImage }}" alt="{{ $dealProduct->name }}" class="h-64 w-full object-cover md:h-full" loading="lazy">
                             </div>
                         </div>
                     </div>
