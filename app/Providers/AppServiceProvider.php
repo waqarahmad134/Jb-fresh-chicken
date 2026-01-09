@@ -154,6 +154,8 @@ class AppServiceProvider extends ServiceProvider
             'product_card_style' => 'style1',
             'blog_enabled' => false,
             'add_to_cart_behavior' => 'page',
+            'footer_phone' => '0303-9345647',
+            'footer_description' => 'Your trusted source for fresh chicken and quality frozen food. Premium products, delivered fresh to your door.',
         ];
     }
 }

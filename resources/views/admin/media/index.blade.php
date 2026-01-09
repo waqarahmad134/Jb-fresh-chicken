@@ -50,9 +50,9 @@
     @if($media->count() > 0)
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             @foreach($media as $item)
-                <div class="group relative cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white transition-shadow hover:shadow-lg dark:border-gray-700 dark:bg-gray-800" onclick="openEditModal('{{ $item['filename'] }}')">
+                <div class="group relative overflow-hidden rounded-lg border border-gray-200 bg-white transition-shadow hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
                     @if($item['is_image'])
-                        <img src="{{ $item['url'] }}" alt="{{ $item['alt_text'] ?? $item['original_name'] }}" class="h-40 w-full object-cover">
+                        <img src="{{ str_starts_with($item['url'], 'http') ? $item['url'] : asset('public' . $item['url']) }}" alt="{{ $item['alt_text'] ?? $item['original_name'] }}" class="h-40 w-full object-cover">
                     @else
                         <div class="flex h-40 w-full items-center justify-center bg-gray-100 dark:bg-gray-700">
                             <svg class="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,15 +60,20 @@
                             </svg>
                         </div>
                     @endif
-                    <div class="absolute inset-0 bg-black bg-opacity-0 transition-opacity group-hover:bg-opacity-50">
+                    <div class="absolute inset-0 bg-opacity-0 transition-opacity group-hover:bg-opacity-50">
                         <div class="flex h-full items-center justify-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                            <button onclick="event.stopPropagation(); selectMedia('{{ $item['filename'] }}', '{{ $item['url'] }}', '{{ $item['alt_text'] ?? '' }}')" class="rounded bg-primary px-3 py-1 text-sm text-white hover:bg-secondary">Select</button>
-                            <button onclick="event.stopPropagation(); openEditModal('{{ $item['filename'] }}')" class="rounded bg-white px-3 py-1 text-sm text-gray-700 hover:bg-gray-100">Edit</button>
+                            <button onclick="event.stopPropagation(); copyImageUrl('{{ $item['url'] }}')" class="rounded bg-primary px-3 py-1 text-sm text-white hover:bg-secondary">Copy</button>
+                            <button onclick="event.stopPropagation(); deleteMediaFromGrid('{{ $item['filename'] }}', '{{ $item['directory'] ?? 'media' }}')" class="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700">Delete</button>
                         </div>
                     </div>
                     <div class="p-2">
                         <p class="truncate text-xs font-medium text-gray-900 dark:text-gray-100">{{ $item['original_name'] }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $item['formatted_size'] }}</p>
+                        <div class="flex items-center justify-between mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $item['formatted_size'] }}</p>
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $item['directory'] === 'media' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' : ($item['directory'] === 'blog' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300' : ($item['directory'] === 'products' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300' : 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300')) }}">
+                                {{ ucfirst($item['directory'] ?? 'media') }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             @endforeach
@@ -151,6 +156,83 @@
 
 @push('scripts')
     <script>
+        // Toast notification function (if not already available)
+        if (typeof showToast === 'undefined') {
+            function showToast(message, type = 'success', duration = 3000) {
+                const container = document.getElementById('toast-container');
+                if (!container) {
+                    const newContainer = document.createElement('div');
+                    newContainer.id = 'toast-container';
+                    newContainer.className = 'fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-full sm:max-w-md px-4 sm:px-0';
+                    newContainer.setAttribute('aria-live', 'polite');
+                    newContainer.setAttribute('aria-atomic', 'true');
+                    document.body.appendChild(newContainer);
+                    return showToast(message, type, duration);
+                }
+
+                const toastId = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                const toast = document.createElement('div');
+                toast.id = toastId;
+                toast.setAttribute('role', 'alert');
+                toast.className = `
+                    flex items-center gap-3 rounded-lg border px-4 py-3 shadow-lg
+                    transition-all duration-300 ease-in-out
+                    transform translate-x-full opacity-0
+                    ${type === 'success' 
+                        ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/40 dark:text-green-300' 
+                        : type === 'error'
+                        ? 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/40 dark:text-red-300'
+                        : type === 'info'
+                        ? 'border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-900/40 dark:text-blue-300'
+                        : 'border-gray-200 bg-gray-50 text-gray-800 dark:border-gray-800 dark:bg-gray-900/40 dark:text-gray-300'
+                    }
+                    w-full sm:min-w-[300px] sm:max-w-md
+                `.replace(/\s+/g, ' ').trim();
+
+                const icon = type === 'success' 
+                    ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+                    : type === 'error'
+                    ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+                    : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+
+                toast.innerHTML = `
+                    ${icon}
+                    <span class="flex-1 text-sm font-medium break-words">${message}</span>
+                    <button type="button" onclick="removeToast('${toastId}')" class="flex-shrink-0 text-current opacity-60 hover:opacity-100 transition-opacity ml-2" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                `;
+
+                container.appendChild(toast);
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        toast.classList.remove('translate-x-full', 'opacity-0');
+                        toast.classList.add('translate-x-0', 'opacity-100');
+                    });
+                });
+
+                if (duration > 0) {
+                    setTimeout(() => {
+                        removeToast(toastId);
+                    }, duration);
+                }
+
+                return toastId;
+            }
+
+            function removeToast(toastId) {
+                const toast = document.getElementById(toastId);
+                if (!toast) return;
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }
+        }
+
         let selectedMediaCallback = null;
 
         function openUploadModal() {
@@ -164,17 +246,18 @@
             document.getElementById('uploadForm').reset();
         }
 
-        function openEditModal(filename) {
-            fetch(`/admin/media/${encodeURIComponent(filename)}`)
+        function openEditModal(filename, directory = 'media') {
+            fetch(`/admin/media/${encodeURIComponent(filename)}?directory=${encodeURIComponent(directory)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         const media = data.media;
                         const isImage = media.is_image;
                         
+                        const imageUrl = media.url.startsWith('http') ? media.url : '{{ asset("public") }}' + media.url;
                         document.getElementById('editModalContent').innerHTML = `
                             <div class="mb-4">
-                                ${isImage ? `<img src="${media.url}" alt="${media.alt_text || ''}" class="h-64 w-full rounded-lg object-cover">` : ''}
+                                ${isImage ? `<img src="${imageUrl}" alt="${media.alt_text || ''}" class="h-64 w-full rounded-lg object-cover">` : ''}
                             </div>
                             <form id="editForm">
                                 @csrf
@@ -198,7 +281,7 @@
                                     </div>
                                     <div class="flex gap-3">
                                         <button type="submit" class="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-secondary">Update</button>
-                                        <button type="button" onclick="deleteMedia('${media.filename}')" class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Delete</button>
+                                        <button type="button" onclick="deleteMediaFromGrid('${media.filename}', '${media.directory || 'media'}')" class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Delete</button>
                                         <button type="button" onclick="closeEditModal()" class="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">Cancel</button>
                                     </div>
                                 </div>
@@ -207,7 +290,7 @@
                         
                         document.getElementById('editForm').addEventListener('submit', function(e) {
                             e.preventDefault();
-                            updateMedia(media.filename);
+                            updateMedia(media.filename, media.directory || 'media');
                         });
                         
                         document.getElementById('editModal').classList.remove('hidden');
@@ -221,8 +304,9 @@
             document.getElementById('editModal').classList.remove('flex');
         }
 
-        function updateMedia(filename) {
+        function updateMedia(filename, directory = 'media') {
             const formData = {
+                directory: directory,
                 alt_text: document.getElementById('editAltText').value,
                 caption: document.getElementById('editCaption').value,
                 description: document.getElementById('editDescription').value,
@@ -239,38 +323,145 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Media updated successfully!');
-                        location.reload();
+                        if (typeof showToast === 'function') {
+                            showToast('Media updated successfully!', 'success');
+                        } else {
+                            alert('Media updated successfully!');
+                        }
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        if (typeof showToast === 'function') {
+                            showToast(data.message || 'Error updating media', 'error');
+                        } else {
+                            alert(data.message || 'Error updating media');
+                        }
                     }
                 });
         }
 
-        function deleteMedia(filename) {
+        const adminMediaBase = '{{ url("admin/media") }}';
+
+        function deleteMediaFromGrid(filename, directory) {
             if (!confirm('Are you sure you want to delete this media? This action cannot be undone.')) {
                 return;
             }
 
-            fetch(`/admin/media/${encodeURIComponent(filename)}`, {
-                method: 'DELETE',
+            // Send directory in FormData body
+            const formData = new FormData();
+            formData.append('directory', directory);
+
+            fetch(`${adminMediaBase}/${encodeURIComponent(filename)}/delete`, {
+                method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
+                },
+                body: formData
             })
-                .then(response => response.json())
+                .then(response => {
+                    // Check if response is ok and is JSON
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
+                        });
+                    }
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error('Expected JSON but got: ' + text.substring(0, 100));
+                        });
+                    }
+                })
                 .then(data => {
                     if (data.success) {
-                        alert('Media deleted successfully!');
-                        location.reload();
+                        if (typeof showToast === 'function') {
+                            showToast('Media deleted successfully!', 'success');
+                        } else {
+                            alert('Media deleted successfully!');
+                        }
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        if (typeof showToast === 'function') {
+                            showToast(data.message || 'Error deleting media', 'error');
+                        } else {
+                            alert(data.message || 'Error deleting media');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('Error deleting media: ' + error.message, 'error');
+                    } else {
+                        alert('Error deleting media: ' + error.message);
                     }
                 });
         }
 
-        function selectMedia(filename, url, altText) {
-            // This will be used when integrating with Summernote
-            if (window.mediaSelectCallback) {
-                window.mediaSelectCallback(url, altText);
+        function deleteMedia(filename, directory = 'media') {
+            // Used by edit modal
+            deleteMediaFromGrid(filename, directory);
+        }
+
+        function copyImageUrl(url) {
+            // Convert relative URL to full URL if needed
+            let fullUrl = url;
+            if (!url.startsWith('http')) {
+                // If it's a relative path like /media/filename.png, make it full URL
+                if (url.startsWith('/')) {
+                    fullUrl = window.location.origin + url;
+                } else {
+                    fullUrl = window.location.origin + '/' + url;
+                }
             }
-            closeEditModal();
+            
+            // Create a temporary textarea element to copy the URL
+            const textarea = document.createElement('textarea');
+            textarea.value = fullUrl;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                // Copy the text to clipboard
+                document.execCommand('copy');
+                
+                // Show toast notification
+                if (typeof showToast === 'function') {
+                    showToast('Your link has been successfully copied', 'success');
+                } else {
+                    // Fallback if showToast is not available
+                    alert('Image URL copied to clipboard: ' + fullUrl);
+                }
+            } catch (err) {
+                // Fallback for browsers that don't support execCommand
+                console.error('Failed to copy:', err);
+                // Try modern clipboard API
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(fullUrl).then(() => {
+                        if (typeof showToast === 'function') {
+                            showToast('Your link has been successfully copied', 'success');
+                        } else {
+                            alert('Image URL copied to clipboard: ' + fullUrl);
+                        }
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                        alert('Failed to copy URL. Please copy manually: ' + fullUrl);
+                    });
+                } else {
+                    alert('Please copy manually: ' + fullUrl);
+                }
+            } finally {
+                // Remove the temporary textarea
+                document.body.removeChild(textarea);
+            }
         }
 
         // Upload form handler
@@ -288,15 +479,29 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('File uploaded successfully!');
-                        location.reload();
+                        if (typeof showToast === 'function') {
+                            showToast('File uploaded successfully!', 'success');
+                        } else {
+                            alert('File uploaded successfully!');
+                        }
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
                     } else {
-                        alert('Error uploading file');
+                        if (typeof showToast === 'function') {
+                            showToast(data.message || 'Error uploading file', 'error');
+                        } else {
+                            alert(data.message || 'Error uploading file');
+                        }
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error uploading file');
+                    if (typeof showToast === 'function') {
+                        showToast('Error uploading file', 'error');
+                    } else {
+                        alert('Error uploading file');
+                    }
                 });
         });
 

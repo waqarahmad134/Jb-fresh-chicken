@@ -29,6 +29,20 @@
             </div>
 
             <div>
+                <label for="footer_description" class="block text-sm font-medium">Footer Description</label>
+                <textarea id="footer_description" name="footer_description" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 bg-light px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700">{{ old('footer_description', $settings['footer_description']) }}</textarea>
+                @error('footer_description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                <p class="mt-1 text-xs text-gray-500">This text appears under the footer heading.</p>
+            </div>
+
+            <div>
+                <label for="footer_phone" class="block text-sm font-medium">Footer Phone</label>
+                <input type="text" id="footer_phone" name="footer_phone" value="{{ old('footer_phone', $settings['footer_phone']) }}" class="mt-1 block w-full rounded-md border border-gray-300 bg-light px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700">
+                @error('footer_phone')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                <p class="mt-1 text-xs text-gray-500">Phone number displayed in the footer contact block.</p>
+            </div>
+
+            <div>
                 <label for="stripe_key" class="block text-sm font-medium">Stripe Key</label>
                 <input type="password" id="stripe_key" name="stripe_key" value="{{ old('stripe_key', $settings['stripe_key']) }}" class="mt-1 block w-full rounded-md border border-gray-300 bg-light px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700">
                 @error('stripe_key')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror

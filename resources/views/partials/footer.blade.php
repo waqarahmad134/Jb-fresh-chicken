@@ -2,6 +2,8 @@
     $siteName = $siteSettings['site_name'] ?? config('app.name', 'JB Fresh Chicken and Frozen Food');
     $blogEnabled = (bool) ($siteSettings['blog_enabled'] ?? false);
     $newsletterEnabled = (bool) ($siteSettings['newsletter_enabled'] ?? false);
+    $footerDescription = $siteSettings['footer_description'] ?? 'Your trusted source for fresh chicken and quality frozen food. Premium products, delivered fresh to your door.';
+    $footerPhone = $siteSettings['footer_phone'] ?? '0303-9345647';
 
     $quickLinks = [
         ['label' => 'Shop', 'href' => url('/shop')],
@@ -24,17 +26,17 @@
         <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div>
                 <h4 class="text-xl font-extrabold text-primary mb-3">{{ $siteName }} {{$blogEnabled}}</h4>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">
-                    Your trusted source for fresh chicken and quality frozen food. Premium products, delivered fresh to your door.
-                </p>
-                <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                    </svg>
-                    <a href="tel:+923039345647" class="hover:text-primary transition-colors">
-                        0303-9345647
-                    </a>
-                </div>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        {{ $footerDescription }}
+                    </p>
+                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                        </svg>
+                        <a href="tel:{{ preg_replace('/[^0-9+]/', '', $footerPhone) }}" class="hover:text-primary transition-colors">
+                            {{ $footerPhone }}
+                        </a>
+                    </div>
             </div>
 
             <div>

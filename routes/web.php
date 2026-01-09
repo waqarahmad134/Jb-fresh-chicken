@@ -113,6 +113,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Blog
     Route::resource('blog', \App\Http\Controllers\Admin\BlogController::class);
     Route::resource('blog-categories', \App\Http\Controllers\Admin\BlogCategoryController::class)->parameters(['blog-categories' => 'blogCategory']);
+    
+    // Home Banners
+    Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class);
 
     // Tags
     Route::resource('tags', \App\Http\Controllers\Admin\TagController::class);
@@ -126,6 +129,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/media/all', [\App\Http\Controllers\Admin\MediaController::class, 'getAll'])->name('media.all');
     Route::get('/media/{filename}', [\App\Http\Controllers\Admin\MediaController::class, 'show'])->name('media.show')->where('filename', '[^/]+');
     Route::put('/media/{filename}', [\App\Http\Controllers\Admin\MediaController::class, 'update'])->name('media.update')->where('filename', '[^/]+');
+    Route::post('/media/{filename}/delete', [\App\Http\Controllers\Admin\MediaController::class, 'destroy'])->name('media.destroy.post')->where('filename', '[^/]+');
     Route::delete('/media/{filename}', [\App\Http\Controllers\Admin\MediaController::class, 'destroy'])->name('media.destroy')->where('filename', '[^/]+');
 
     // Database Management

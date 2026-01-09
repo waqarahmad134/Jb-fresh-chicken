@@ -7,6 +7,7 @@ use App\Models\Page;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
@@ -43,6 +44,8 @@ class SettingsController extends Controller
             'blog_enabled' => false,
             'newsletter_enabled' => false,
             'maintenance_mode' => false,
+            'footer_phone' => null,
+            'footer_description' => null,
         ];
 
         $settings = array_merge($defaults, $settings);
@@ -60,6 +63,8 @@ class SettingsController extends Controller
             'blog_enabled' => ['nullable', 'boolean'],
             'newsletter_enabled' => ['nullable', 'boolean'],
             'maintenance_mode' => ['nullable', 'boolean'],
+            'footer_phone' => ['nullable', 'string', 'max:255'],
+            'footer_description' => ['nullable', 'string', 'max:500'],
         ]);
 
         // Normalise booleans from checkboxes
@@ -82,6 +87,8 @@ class SettingsController extends Controller
                 );
             }
         });
+
+        Cache::forget('site.settings');
 
         return back()->with('success', 'Settings saved successfully');
     }

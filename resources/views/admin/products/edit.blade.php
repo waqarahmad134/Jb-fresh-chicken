@@ -81,11 +81,11 @@
                                 <div class="relative group">
                                     <img src="{{ str_starts_with($image->image_url, 'http') ? $image->image_url : asset('public'.$image->image_url) }}" alt="{{ $image->alt_text ?? $product->name }}" class="w-full h-32 object-cover rounded border border-gray-300">
                                     @if($image->is_primary)
-                                        <span class="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">Primary</span>
+                                        <span class="bg-primary text-white text-xs px-2 py-1 rounded">Primary</span>
                                     @endif
-                                    <label class="absolute top-1 right-1 cursor-pointer">
+                                    <label class="cursor-pointer">
                                         <input type="checkbox" name="delete_images[]" value="{{ $image->id }}" class="hidden delete-image-checkbox">
-                                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Delete</span>
+                                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded transition-opacity">Delete</span>
                                     </label>
                                 </div>
                             @endforeach

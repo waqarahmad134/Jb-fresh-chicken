@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -33,6 +34,7 @@ class ProductCategoryController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'unique:categories,slug'],
+            'featured_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif,webp', 'max:5120'], // 5MB max
             'image_url' => ['nullable', 'string', 'max:1000'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
@@ -47,6 +49,28 @@ class ProductCategoryController extends Controller
         if (!isset($validated['sort_order'])) {
             $maxSortOrder = Category::max('sort_order') ?? 0;
             $validated['sort_order'] = $maxSortOrder + 1;
+        }
+
+        // Handle featured image upload
+        if ($request->hasFile('featured_image')) {
+            $imagesPath = public_path('images/categories');
+            
+            // Create directory if it doesn't exist
+            if (!File::exists($imagesPath)) {
+                File::makeDirectory($imagesPath, 0755, true);
+            }
+
+            $image = $request->file('featured_image');
+            $filename = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+            
+            // Move file to public/images/categories
+            $image->move($imagesPath, $filename);
+            
+            // Set image URL
+            $validated['image_url'] = '/images/categories/' . $filename;
+        } elseif (empty($validated['image_url'])) {
+            // Remove image_url from validated if not provided
+            unset($validated['image_url']);
         }
 
         Category::create($validated);
@@ -64,6 +88,7 @@ class ProductCategoryController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'unique:categories,slug,' . $category->id],
+            'featured_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif,webp', 'max:5120'], // 5MB max
             'image_url' => ['nullable', 'string', 'max:1000'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
@@ -73,6 +98,51 @@ class ProductCategoryController extends Controller
             $validated['slug'] = Str::slug($validated['name']);
         }
         $validated['is_active'] = (bool) $request->boolean('is_active');
+
+        // Handle image removal
+        if ($request->has('remove_image') && $request->boolean('remove_image')) {
+            // Delete old image if it exists and is a local file
+            if ($category->image_url && !str_starts_with($category->image_url, 'http')) {
+                $oldImagePath = public_path($category->image_url);
+                if (File::exists($oldImagePath)) {
+                    File::delete($oldImagePath);
+                }
+            }
+            // Clear image_url
+            $validated['image_url'] = null;
+        }
+        // Handle featured image upload
+        elseif ($request->hasFile('featured_image')) {
+            // Delete old image if it exists and is a local file
+            if ($category->image_url && !str_starts_with($category->image_url, 'http')) {
+                $oldImagePath = public_path($category->image_url);
+                if (File::exists($oldImagePath)) {
+                    File::delete($oldImagePath);
+                }
+            }
+
+            $imagesPath = public_path('images/categories');
+            
+            // Create directory if it doesn't exist
+            if (!File::exists($imagesPath)) {
+                File::makeDirectory($imagesPath, 0755, true);
+            }
+
+            $image = $request->file('featured_image');
+            $filename = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+            
+            // Move file to public/images/categories
+            $image->move($imagesPath, $filename);
+            
+            // Set image URL
+            $validated['image_url'] = '/images/categories/' . $filename;
+        } elseif (empty($validated['image_url'])) {
+            // If image_url is empty and no file uploaded, keep existing or set to null
+            if (!$request->has('image_url')) {
+                // Keep existing image_url if not explicitly cleared
+                unset($validated['image_url']);
+            }
+        }
 
         $category->update($validated);
 

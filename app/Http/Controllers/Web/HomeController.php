@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banner;
 use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Product;
@@ -19,7 +20,7 @@ class HomeController extends Controller
     {
         $placeholderImage = 'https://picsum.photos/seed/jbfreshchicken/800/600';
 
-        $slides = [
+        $defaultSlides = [
             [
                 'image' => 'https://picsum.photos/id/1060/1600/900',
                 'title' => 'Crispy, Juicy, Irresistible',
@@ -42,6 +43,29 @@ class HomeController extends Controller
                 'button_url' => url('/shop'),
             ],
         ];
+
+        $bannerSlides = Banner::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        $resolveImage = fn(?string $url) => $url
+            ? (str_starts_with($url, 'http') ? $url : asset('public' . $url))
+            : $placeholderImage;
+
+        if ($bannerSlides->isNotEmpty()) {
+            $slides = $bannerSlides->map(function (Banner $banner) use ($resolveImage) {
+                return [
+                    'image' => $resolveImage($banner->image_url),
+                    'title' => $banner->title,
+                    'subtitle' => $banner->subtitle ?? '',
+                    'button_label' => $banner->button_label ?: 'Shop Now',
+                    'button_url' => $banner->button_url ?: url('/shop'),
+                ];
+            })->toArray();
+        } else {
+            $slides = $defaultSlides;
+        }
 
         $featuredCategories = Category::query()
             ->where('is_active', true)
